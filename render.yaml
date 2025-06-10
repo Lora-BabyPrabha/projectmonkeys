@@ -1,18 +1,18 @@
 services:
   - type: web
-    name: 3monkeys-backend
+    name: app3monkeys
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn project3monkeys.wsgi:application
     envVars:
       - key: DEBUG
         value: False
-      - key: DJANGO_SECRET_KEY
+      - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: 3monkeys-db
+          name: database_3monkeys
           property: connectionString
 databases:
-  - name: 3monkeys-db
+  - name: database_3monkeys
     plan: free
