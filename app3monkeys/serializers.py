@@ -89,3 +89,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'property', 'property_id', 'customer', 'rating', 'comment', 'created_at']
         read_only_fields = ['customer', 'created_at']
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
