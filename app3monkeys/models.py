@@ -8,15 +8,8 @@ from django.utils import timezone
 
 # Custom User
 class User(AbstractUser):
-    ROLE_CHOICES = (
-        ('vendor', 'Vendor'),
-        ('customer', 'Customer'),
-    )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    phone = models.CharField(max_length=15, blank=True)
-
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return self.username
 
 
 # Property Listing

@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from rest_framework import generics
+from .models import User
 # Create your views here.
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -102,3 +103,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
