@@ -8,10 +8,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class CustomUserAdmin(BaseUserAdmin):
     model = User
-    list_display = ['username', 'email', 'role']
-    fieldsets = BaseUserAdmin.fieldsets + (
-        (None, {'fields': ('role', 'phone')}),
-    )
+    list_display = ['username', 'email']
+
 
 
 admin.site.register(User, CustomUserAdmin)
