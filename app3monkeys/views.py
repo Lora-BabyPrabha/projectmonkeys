@@ -12,7 +12,7 @@ from .serializers import ResetPasswordSerializer
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
-from .serializers import PasswordResetAllInOneSerializer
+from .serializers import ForgotpasswordSerializer
 
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
@@ -120,37 +120,35 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
 #Reset password
 class ResetPasswordView(generics.UpdateAPIView):
     serializer_class = ResetPasswordSerializer
-    permission_classes = [IsAuthenticated]  # or your custom permission
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+
         if serializer.is_valid():
-            username = serializer.validated_data['username']
+            user = request.user  # Use the authenticated user
             old_password = serializer.validated_data['old_password']
             new_password = serializer.validated_data['new_password']
 
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return Response({"username": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-            
-            if request.user != user and not request.user.is_staff:
-                return Response({"error": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
-
             if not user.check_password(old_password):
-                return Response({"old_password": "Incorrect old password."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"old_password": "Incorrect old password."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             user.set_password(new_password)
             user.save()
-            return Response({"detail": f"Password updated for {username}."}, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Password updated successfully."},
+                status=status.HTTP_200_OK
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-User = get_user_model()
 
-class PasswordResetAllInOneView(GenericAPIView):
-    serializer_class = PasswordResetAllInOneSerializer
+# Forgot Password
+class ForgotpasswordView(GenericAPIView):
+    serializer_class = ForgotpasswordSerializer
 
     def get(self, request):
         # Show blank form in browsable API
@@ -180,6 +178,7 @@ from .serializers import SendOTPSerializer
 
 OTP_STORE = {}  # Store in memory for testing
 
+# Send OTP
 class SendOTPView(GenericAPIView):
     serializer_class = SendOTPSerializer
 
@@ -202,7 +201,7 @@ class SendOTPView(GenericAPIView):
             send_mail(
                 subject='Your OTP Code',
                 message=f'Your OTP is: {otp}',
-                from_email='noreply@3monkeys.com',
+                from_email='loracareerportal@gmail.com',
                 recipient_list=[email],
                 fail_silently=False,
             )
