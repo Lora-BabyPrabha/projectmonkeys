@@ -1,25 +1,29 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db.models import Q
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import get_user_model
+
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
     PropertySerializer, BookingSerializer, AvailabilitySerializer,
-    WishlistSerializer, ReviewSerializer, UserSerializer, RegisterSerializer
+    WishlistSerializer, ReviewSerializer, UserSerializer, RegisterSerializer, UserListSerializer
 )
 from .permissions import IsVendor, IsCustomer, IsOwnerOrReadOnly
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()
 
 
 # Auth views
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['user'] = UserSerializer(self.user).data  # ✅ Include user info
+        user_data = UserSerializer(self.user).data
+        data['user'] = user_data
+        data['role'] = self.user.role  # ✅ Include role
         return data
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -27,15 +31,17 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()  # ✅ Required for ModelViewSet
     serializer_class = RegisterSerializer
     http_method_names = ['post']
+    permission_classes = [permissions.AllowAny]  # ✅ Allow public access to register
 
 
 # Property View
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(vendor=self.request.user)
@@ -66,7 +72,6 @@ class BookingViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsCustomer]
 
     def perform_create(self, serializer):
-        # Calculate price and save booking
         prop = serializer.validated_data['property']
         nights = (serializer.validated_data['check_out'] - serializer.validated_data['check_in']).days
         total_price = nights * prop.price_per_night
@@ -74,12 +79,8 @@ class BookingViewSet(viewsets.ModelViewSet):
 
 
 # Wishlist View
-from rest_framework import viewsets
-from .models import Wishlist
-from .serializers import WishlistSerializer
-
 class WishlistViewSet(viewsets.ModelViewSet):
-    queryset = Wishlist.objects.all()   # ✅ required
+    queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
     permission_classes = [permissions.IsAuthenticated, IsCustomer]
 
@@ -88,8 +89,6 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
-        
-
 
 
 # Review View
@@ -102,9 +101,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
-from .serializers import UserListSerializer
-from django.contrib.auth import get_user_model
-User = get_user_model()
+
+
+# User List View
 class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
