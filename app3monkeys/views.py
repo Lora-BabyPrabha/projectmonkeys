@@ -17,7 +17,7 @@ from .serializers import ForgotpasswordSerializer
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
     PropertySerializer, BookingSerializer, AvailabilitySerializer,
-    WishlistSerializer, ReviewSerializer, UserSerializer, RegisterSerializer, UserListSerializer
+    WishlistSerializer, ReviewSerializer, UserSerializer, RegisterSerializer, UserListSerializer, ForgotpasswordSerializer, SendOTPSerializer
 )
 from .permissions import IsVendor, IsCustomer, IsOwnerOrReadOnly
 from rest_framework.generics import GenericAPIView
@@ -151,12 +151,12 @@ class ForgotpasswordView(GenericAPIView):
     serializer_class = ForgotpasswordSerializer
 
     def get(self, request):
-        # Show blank form in browsable API
         return Response(self.get_serializer().data)
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
+            email = serializer.validated_data['email']  # ✅ Fix: extract email from validated_data
             otp = serializer.validated_data['otp']
             new_password = serializer.validated_data['new_password']
 
@@ -174,10 +174,8 @@ class ForgotpasswordView(GenericAPIView):
 
             return Response({"message": "Password reset successfully."})
         return Response(serializer.errors, status=400)
-from .serializers import SendOTPSerializer
 
-OTP_STORE = {}  # Store in memory for testing
-
+OTP_STORE = {}
 # Send OTP
 class SendOTPView(GenericAPIView):
     serializer_class = SendOTPSerializer
@@ -201,7 +199,7 @@ class SendOTPView(GenericAPIView):
             send_mail(
                 subject='Your OTP Code',
                 message=f'Your OTP is: {otp}',
-                from_email='loracareerportal@gmail.com',
+                from_email='noreply@3monkeys.com',
                 recipient_list=[email],
                 fail_silently=False,
             )
