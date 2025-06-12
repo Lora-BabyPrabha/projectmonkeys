@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import generics
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -6,6 +7,9 @@ from django.db.models import Q
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
+from rest_framework.permissions import IsAuthenticated
+from .serializers import ResetPasswordSerializer
 
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
@@ -108,3 +112,33 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
     permission_classes = [permissions.AllowAny]
+
+#change password
+class ResetPasswordView(generics.UpdateAPIView):
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [IsAuthenticated]  # or your custom permission
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({"username": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            
+            if request.user != user and not request.user.is_staff:
+                return Response({"error": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+
+            if not user.check_password(old_password):
+                return Response({"old_password": "Incorrect old password."}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.set_password(new_password)
+            user.save()
+            return Response({"detail": f"Password updated for {username}."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
