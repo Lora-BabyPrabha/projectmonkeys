@@ -1,4 +1,6 @@
 from django.urls import path, include
+from .views import UserListViewSet
+from .views import SendOTPView, PasswordResetAllInOneView
 from rest_framework.routers import DefaultRouter
 from .views import (
     PropertyViewSet, BookingViewSet, AvailabilityViewSet,
@@ -13,14 +15,12 @@ router.register(r'bookings', BookingViewSet)
 router.register(r'wishlist', WishlistViewSet, basename='wishlist')
 router.register(r'reviews', ReviewViewSet, basename='reviews')
 router.register(r'register', RegisterViewSet, basename='register')
-from .views import UserListViewSet
-
 router.register(r'users', UserListViewSet, basename='userlist')  # Handles signup via POST
  
 urlpatterns = [
     path('api/', include(router.urls)),
- 
-    # JWT Authentication endpoints
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),  # login
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),       # refresh token
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
+    path('send-otp/', SendOTPView.as_view(), name='send-otp'),
+    path('new-password/', PasswordResetAllInOneView.as_view(), name='new-password'),     # refresh token
 ]

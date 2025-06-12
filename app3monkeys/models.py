@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 
 # Create your models here.
 from django.db import models
@@ -9,13 +10,17 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class User(AbstractUser):
-    email = models.EmailField(unique=True)  # <- make this unique
+    ROLE_CHOICES = (
+        ('customer', 'Customer'),
+        ('vendor', 'Vendor'),
+    )
+    email = models.EmailField(unique=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
 
     def __str__(self):
         return self.username
-
-
 
 # Property Listing
 class Property(models.Model):
@@ -88,3 +93,17 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.customer.username} - {self.property.title} - {self.rating}"
+from django.db import models
+from django.contrib.auth import get_user_model
+import uuid
+
+User = get_user_model()
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"OTP for {self.user.email} - {self.otp}"
