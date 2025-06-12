@@ -91,6 +91,18 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
+        
+# Reset Password
+class ResetPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError("New passwords do not match.")
+        return data
 
 #forgot password
 class PasswordResetAllInOneSerializer(serializers.Serializer):
@@ -106,3 +118,4 @@ class PasswordResetAllInOneSerializer(serializers.Serializer):
 #send otp
 class SendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
