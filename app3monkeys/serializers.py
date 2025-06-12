@@ -2,17 +2,15 @@ from rest_framework import serializers
 from .models import User, Property, Availability, Booking, Wishlist, Review
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'email']
-
-
-#from rest_framework import serializers
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -93,7 +91,8 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
-
+        
+# Reset Password
 class ResetPasswordSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     old_password = serializers.CharField(required=True)
@@ -104,3 +103,19 @@ class ResetPasswordSerializer(serializers.Serializer):
         if data['new_password'] != data['confirm_new_password']:
             raise serializers.ValidationError("New passwords do not match.")
         return data
+
+#forgot password
+class PasswordResetAllInOneSerializer(serializers.Serializer):
+    otp = serializers.CharField(max_length=6)
+    new_password = serializers.CharField(write_only=True, min_length=6)
+    confirm_password = serializers.CharField(write_only=True, min_length=6)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+#send otp
+class SendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
