@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app3monkeys.urls')),
+    path('api-auth/', include('rest_framework.urls')),  # 👈 Add this line
 ]
 
 if settings.DEBUG:
