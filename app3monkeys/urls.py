@@ -12,7 +12,10 @@ router.register(r'availability', AvailabilityViewSet)
 router.register(r'bookings', BookingViewSet)
 router.register(r'wishlist', WishlistViewSet, basename='wishlist')
 router.register(r'reviews', ReviewViewSet, basename='reviews')
-router.register(r'register', RegisterViewSet, basename='register')  # Handles signup via POST
+router.register(r'register', RegisterViewSet, basename='register')
+from .views import UserListViewSet
+
+router.register(r'users', UserListViewSet, basename='userlist')  # Handles signup via POST
  
 urlpatterns = [
     path('api/', include(router.urls)),

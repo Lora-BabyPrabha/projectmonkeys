@@ -102,3 +102,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
+from .serializers import UserListSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
+class UserListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    permission_classes = [permissions.AllowAny]
