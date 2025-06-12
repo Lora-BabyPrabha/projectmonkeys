@@ -175,6 +175,7 @@ class ForgotpasswordView(GenericAPIView):
             return Response({"message": "Password reset successfully."})
         return Response(serializer.errors, status=400)
 
+
 OTP_STORE = {}
 # Send OTP
 class SendOTPView(GenericAPIView):
