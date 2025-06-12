@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import UserListViewSet
-from .views import SendOTPView, PasswordResetAllInOneView
+from .views import SendOTPView, ForgotpasswordView
 from rest_framework.routers import DefaultRouter
 from .views import UserListViewSet
 from .views import (
@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),  # login
     path('api/Reset-password/', ResetPasswordView.as_view(), name='Reset-password'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('send-otp/', SendOTPView.as_view(), name='send-otp'),
-    path('new-password/', PasswordResetAllInOneView.as_view(), name='new-password'),     # refresh token
+    path('api/send-otp/', SendOTPView.as_view(), name='send-otp'),
+    path('api/new-password/', ForgotpasswordView.as_view(), name='new-password'),     # refresh token
 
 ]

@@ -91,10 +91,9 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
-        
+
 # Reset Password
 class ResetPasswordSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
     confirm_new_password = serializers.CharField(required=True)
@@ -105,7 +104,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         return data
 
 #forgot password
-class PasswordResetAllInOneSerializer(serializers.Serializer):
+class ForgotpasswordSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)
     new_password = serializers.CharField(write_only=True, min_length=6)
     confirm_password = serializers.CharField(write_only=True, min_length=6)
