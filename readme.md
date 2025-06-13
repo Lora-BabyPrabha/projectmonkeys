@@ -28,93 +28,78 @@ Welcome to the backend API for **3MONKEYS**, a powerful platform that enables us
 
 ## Project Structure
 
-monkeysdata/
-├── projectmonkeys/          # Main Django project settings
-│   └── __init__.py
-│   └── settings.py
-│   └── urls.py
-│   └── wsgi.py / asgi.py
-│
-├── app3monkeys/             # Core application logic
-│   ├── __init__.py
-│   ├── admin.py             # Admin panel configurations
-│   ├── apps.py
-│   ├── models.py            # Models: User, Property, Booking, etc.
-│   ├── permissions.py       # Custom permissions for roles
-│   ├── serializers.py       # Serializers for API data handling
-│   ├── urls.py              # App-level URL patterns
-│   ├── utils.py             # Utility functions (e.g., OTP, helpers)
-│   ├── views.py             # API views and logic
-│   └── migrations/          # Django model migrations
-│
-├── media/                   # Uploaded media (e.g., images)
-├── .env                     # Environment variables
-├── .gitignore
-├── manage.py                # Django management script
-├── procfile                 # Render deployment config
-├── readme.md
-├── render.yaml              # Render platform build & deploy settings
-└── requirements.txt         # Python dependencies
+<pre> <code> ``` monkeysdata/ ├── projectmonkeys/ # Main Django project settings │ ├── __init__.py │ ├── settings.py # Project settings, including DB & deployment │ ├── urls.py # Root URL configurations │ └── wsgi.py / asgi.py # Server gateway files │ ├── app3monkeys/ # Core application logic │ ├── __init__.py │ ├── admin.py # Admin panel configuration │ ├── apps.py │ ├── models.py # Models: User, Property, Booking, etc. │ ├── permissions.py # Custom permissions for roles │ ├── serializers.py # Serializers for handling API data │ ├── urls.py # App-specific URL routes │ ├── utils.py # Utility functions (e.g., OTP generator) │ ├── views.py # API logic (Register, Login, Bookings etc.) │ └── migrations/ # DB schema migrations │ ├── media/ # Uploaded media files (images) ├── .env # Environment variables (secret keys, DB info) ├── .gitignore # Git ignore rules ├── manage.py # Django command-line utility ├── Procfile # Render deployment entry point ├── render.yaml # Render platform deployment settings ├── requirements.txt # Python dependencies └── README.md # Project documentation ``` </code> </pre>
 
 
-## Installation
+## Installation and Setup Instructions
 
-1. **Clone the Repository**
+1. **Create Project Directory**
    ```bash
-   git clone https://github.com/Lora-BabyPrabha/projectmonkeys.git
-   cd app3monkeys
+   mkdir monkeysdata
+   cd monkeysdata
 
-2. **Create & Activate a Virtual Environment**
+2. **Set Up a Virtual Environment**
    ```bash
    python -m venv env
    env\Scripts\activate  # On Windows
 
-3. **Install Requirements**
+3. **Install Django**
    ```bash
-   pip install -r requirements.txt
+   pip install django djangorestframework djangorestframework-simplejwt psycopg2-binary python-decouple
 
-4. **Set Up PostgreSQL Database**
-   Create a PostgreSQL database (postgres3monkeys)
-   Update DATABASES in settings.py and .env (Put external url in settings.py or .env)
-    
-5. **Apply Migrations**
+4. **Create Django Project and App**
+   ```bash
+   django-admin startproject projectmonkeys 
+   cd projectmonkeys
+   python manage.py startapp app3monkeys
+
+5. **Make changes in settings.py**
+   - Add 'app3monkeys', to the INSTALLED_APPS list.
+   - Add 'rest_framework', and 'rest_framework_simplejwt', as well.
+   - Configure PostgreSQL Database in settings.py
+
+6. **Apply Migrations**
+   ```bash
    python manage.py makemigrations
    python manage.py migrate
-   
-6. **Run Server**
-   python manage.py runserver
 
- 
+7. **Final Setup and Run**
+   ```bash
+   python manage.py createsuperuser  # Create Superuser for admin panel
+   python manage.py runserver   # Run the Development Server
+   pip freeze > requirements.txt  # Create Requirements File
+
+
 ## authentication-related APIs
 
 The following authentication-related APIs are fully implemented and tested:
 
 1. **Register API**
-Endpoint: /api/register/
-Fields: 'username', 'email', 'password', 'role'
-Method: POST
-Description: Allows a new user to register as a customer or vendor.
+  - Endpoint: /api/register/
+  - Fields: 'username', 'email', 'password', 'role'
+  - Method: POST
+  - Description: Allows a new user to register as a customer or vendor.
 
 2. **Login API**
-Endpoint: /api/token/
-Fields: 'username', 'password'
-Method: POST
-Description: Returns JWT access and refresh tokens after validating user credentials.
+  - Endpoint: /api/token/
+  - Fields: 'username', 'password'
+  - Method: POST
+  - Description: Returns JWT access and refresh tokens after validating user credentials.
 
 3. **Forgot Password API**
-Endpoint: /api/send-otp/
-Endpoint: /api/New-password/
-Method: POST
-Fields: 'Email' (For send-otp)
-        'Email', 'OTP', 'New Password', 'Confirm Password' (For New-Password)
-Description: Sends an OTP to the registered email address to initiate password reset.
-             Verifies OTP and allows the user to set a new password.
+  - Endpoint: /api/send-otp/
+  - Endpoint: /api/New-password/
+  - Method: POST
+  - Fields: 'Email' → For send-otp
+            'Email', 'OTP', 'New Password', 'Confirm Password' → For New-Password
+  - Description: 1. Sends an OTP to the registered email address to initiate password reset.
+                 2. Verifies OTP and allows the user to set a new password.
 
 4. **Reset Password API**
-Endpoint: /api/new-password/
-Method: POST
-Fields: 'Old Password', 'New Password', 'Confirm Password'
-Description: Verifies Old Password and allows the user to reset a new password.
+  - Endpoint: /api/new-password/
+  - Method: POST
+  - Fields: 'Old Password', 'New Password', 'Confirm Password'
+  - Description: Verifies Old Password and allows the user to reset a new password.
 
 
 ## Deployment Guide
@@ -137,9 +122,9 @@ GitHub Repository (Code must be pushed here)
    DB Name, User, Password, Host, Port
  - Configure Django Settings
    In settings.py update Database details
-   ALLOWED_HOSTS = ['*']
-   DEBUG = False
-   Set Up Static & Media Files (Optional but recommended for production)
+   ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']  # Hosts allowed to access the app (Render & local)
+ - DEBUG = False
+ - Set Up Static & Media Files (Optional but recommended for production)
 
 **Deploy on Render**
  - Create a New Web Service
