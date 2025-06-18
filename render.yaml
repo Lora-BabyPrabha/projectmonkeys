@@ -11,8 +11,8 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: postgres3monkeys
+          name: project3monkeys
           property: connectionString
 databases:
-  - name: postgres3monkeys
+  - name: project3monkeys
     plan: free
