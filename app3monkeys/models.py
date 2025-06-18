@@ -7,8 +7,8 @@ from django.db import models
 
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ('customer', 'Customer'),
-        ('vendor', 'Vendor'),
+        ('User', 'User'),
+        ('Admin', 'Admin'),
     )
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
