@@ -101,3 +101,4 @@ class PasswordResetOTP(models.Model):
 
     def __str__(self):
         return f"OTP for {self.user.email} - {self.otp}"
+ 

@@ -27,8 +27,35 @@ Welcome to the backend API for **3MONKEYS**, a powerful platform that enables us
 
 
 ## Project Structure
-
-<pre> <code> ``` monkeysdata/ ├── projectmonkeys/ # Main Django project settings │ ├── __init__.py │ ├── settings.py # Project settings, including DB & deployment │ ├── urls.py # Root URL configurations │ └── wsgi.py / asgi.py # Server gateway files │ ├── app3monkeys/ # Core application logic │ ├── __init__.py │ ├── admin.py # Admin panel configuration │ ├── apps.py │ ├── models.py # Models: User, Property, Booking, etc. │ ├── permissions.py # Custom permissions for roles │ ├── serializers.py # Serializers for handling API data │ ├── urls.py # App-specific URL routes │ ├── utils.py # Utility functions (e.g., OTP generator) │ ├── views.py # API logic (Register, Login, Bookings etc.) │ └── migrations/ # DB schema migrations │ ├── media/ # Uploaded media files (images) ├── .env # Environment variables (secret keys, DB info) ├── .gitignore # Git ignore rules ├── manage.py # Django command-line utility ├── Procfile # Render deployment entry point ├── render.yaml # Render platform deployment settings ├── requirements.txt # Python dependencies └── README.md # Project documentation ``` </code> </pre>
+monkeysdata/
+├── projectmonkeys/            # Main Django project (settings and configuration)
+│   ├── __init__.py
+│   ├── settings.py            # Global settings
+│   ├── urls.py                # Root URL configuration
+│   ├── wsgi.py                # WSGI entry-point for deployment
+│   └── asgi.py                # ASGI entry-point for async support
+│
+├── app3monkeys/              # Core Django application logic
+│   ├── __init__.py
+│   ├── admin.py              # Admin panel configurations
+│   ├── apps.py
+│   ├── models.py             # Models: User, Property, Booking, etc.
+│   ├── permissions.py        # Custom role-based permissions
+│   ├── serializers.py        # Serializers for data validation & transformation
+│   ├── urls.py               # Application-level routing
+│   ├── utils.py              # Utility functions (e.g., OTP generation)
+│   ├── views.py              # API views and business logic
+│   └── migrations/           # Django model migrations
+│
+├── media/                    # Uploaded files (e.g., images)
+│
+├── .env                      # Environment variables (not committed to Git)
+├── .gitignore                # Files/folders to ignore in Git
+├── manage.py                 # Django management utility
+├── Procfile                  # Deployment entry-point for Render
+├── render.yaml               # Render-specific build & deploy config
+├── requirements.txt          # Python project dependencies
+└── README.md                 # Project documentation
 
 
 ## Installation and Setup Instructions
@@ -107,11 +134,7 @@ The following authentication-related APIs are fully implemented and tested:
 This section outlines the deployment process for the 3MONKEYS backend using Render and PostgreSQL.  
 
 **Requirements**
-Python ≥ 3.9
-Django ≥ 4.0
-PostgreSQL (Cloud DB or Render-managed)
-Render Account (https://render.com)
-GitHub Repository (Code must be pushed here)
+Python ≥ 3.9, Django ≥ 4.0, PostgreSQL (Cloud DB or Render-managed), Render Account (https://render.com), GitHub Repository (Code must be pushed here)
 
 **Deployment Setup**
  - Push Code to GitHub
