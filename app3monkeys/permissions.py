@@ -1,20 +1,20 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-class IsVendor(BasePermission):
+class IsAdmin(BasePermission):
     """
     Allows access only to users with the vendor role.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'vendor'
+        return request.user.is_authenticated and request.user.role == 'Admin'
 
 
-class IsCustomer(BasePermission):
+class IsUser(BasePermission):
     """
-    Allows access only to users with the customer role.
+    Allows access only to users with the User role.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'customer'
+        return request.user.is_authenticated and request.user.role == 'User'
 
 
 class IsOwnerOrReadOnly(BasePermission):
@@ -28,8 +28,40 @@ class IsOwnerOrReadOnly(BasePermission):
             return True
 
         # Check object ownership
-        if hasattr(obj, 'vendor'):
+        if hasattr(obj, 'Admin'):
             return obj.vendor == request.user
-        elif hasattr(obj, 'customer'):
+        elif hasattr(obj, 'User'):
             return obj.customer == request.user
         return False
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+class IsAdminOrReadOnlyForUser(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            # Admin: full access
+            if request.user.role == 'Admin':
+                return True
+            # User: only safe methods
+            elif request.user.role == 'User':
+                return request.method in SAFE_METHODS
+        return False
+class IsBookingOwnerOrAdminReadOnly(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == 'Admin':
+            return request.method in SAFE_METHODS
+        return obj.customer == request.user  # Only owner can access their own booking
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+
+class IsReviewOwnerOrAdminReadOnly(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Admins can only read
+        if request.user.role == 'Admin':
+            return request.method in SAFE_METHODS
+        # Users can access their own reviews
+        return obj.customer == request.user
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated

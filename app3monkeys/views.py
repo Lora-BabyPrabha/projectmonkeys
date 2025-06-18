@@ -13,14 +13,14 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from .serializers import ForgotpasswordSerializer
-
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
     PropertySerializer, BookingSerializer, AvailabilitySerializer,
     WishlistSerializer, ReviewSerializer, UserSerializer, RegisterSerializer, UserListSerializer, ForgotpasswordSerializer, SendOTPSerializer
 )
-from .permissions import IsVendor, IsCustomer, IsOwnerOrReadOnly
+from .permissions import  IsAdmin, IsUser
 from rest_framework.generics import GenericAPIView
+
 User = get_user_model()
 
 
@@ -44,52 +44,42 @@ class RegisterViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]  # ✅ Allow public access to register
 
 
-# Property View
+from .permissions import IsAdminOrReadOnlyForUser
+from rest_framework import permissions
+
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(vendor=self.request.user)
-
-    def get_queryset(self):
-        queryset = Property.objects.all()
-        q = self.request.query_params.get('q')
-        if q:
-            queryset = queryset.filter(
-                Q(title__icontains=q) |
-                Q(location__icontains=q) |
-                Q(description__icontains=q)
-            )
-        return queryset
-
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnlyForUser]
 
 # Availability View
+from .permissions import IsAdminOrReadOnlyForUser
+
 class AvailabilityViewSet(viewsets.ModelViewSet):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
-    permission_classes = [permissions.IsAuthenticated, IsVendor]
-
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnlyForUser]
 
 # Booking View
-class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCustomer]
+from .permissions import IsBookingOwnerOrAdminReadOnly
 
-    def perform_create(self, serializer):
-        prop = serializer.validated_data['property']
-        nights = (serializer.validated_data['check_out'] - serializer.validated_data['check_in']).days
-        total_price = nights * prop.price_per_night
-        serializer.save(customer=self.request.user, total_price=total_price)
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()  # Add this line back!
+    serializer_class = BookingSerializer
+    permission_classes = [IsBookingOwnerOrAdminReadOnly]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'Admin':
+            return Booking.objects.all()
+        return Booking.objects.filter(customer=user)
 
 
 # Wishlist View
 class WishlistViewSet(viewsets.ModelViewSet):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCustomer]
+    permission_classes = [permissions.IsAuthenticated, IsUser]
 
     def get_queryset(self):
         return Wishlist.objects.filter(customer=self.request.user)
@@ -99,12 +89,17 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
 
 # Review View
+from .permissions import IsReviewOwnerOrAdminReadOnly
+
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticated, IsCustomer]
+    permission_classes = [IsReviewOwnerOrAdminReadOnly]
 
     def get_queryset(self):
-        return Review.objects.filter(customer=self.request.user)
+        user = self.request.user
+        if user.role == 'Admin':
+            return Review.objects.all()  # Admin sees all reviews
+        return Review.objects.filter(customer=user)  # User sees only their own
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
@@ -114,7 +109,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
 
 
 #Reset password
