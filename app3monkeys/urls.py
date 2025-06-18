@@ -24,5 +24,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/send-otp/', SendOTPView.as_view(), name='send-otp'),
     path('api/new-password/', ForgotpasswordView.as_view(), name='new-password'),     # refresh token
-
+    
 ]

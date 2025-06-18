@@ -13,7 +13,6 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from .serializers import ForgotpasswordSerializer
-
 from .models import Property, Booking, Availability, Wishlist, Review
 from .serializers import (
     PropertySerializer, BookingSerializer, AvailabilitySerializer,
@@ -48,22 +47,6 @@ class RegisterViewSet(viewsets.ModelViewSet):
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
-
-    def perform_create(self, serializer):
-        serializer.save(vendor=self.request.user)
-
-    def get_queryset(self):
-        queryset = Property.objects.all()
-        q = self.request.query_params.get('q')
-        if q:
-            queryset = queryset.filter(
-                Q(title__icontains=q) |
-                Q(location__icontains=q) |
-                Q(description__icontains=q)
-            )
-        return queryset
-
 
 # Availability View
 class AvailabilityViewSet(viewsets.ModelViewSet):

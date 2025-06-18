@@ -39,12 +39,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 # Property Serializer
 class PropertySerializer(serializers.ModelSerializer):
-    vendor = UserSerializer(read_only=True)
-
     class Meta:
         model = Property
-        fields = '__all__'
-        read_only_fields = ['vendor', 'created_at']
+        fields = ['id', 'title', 'category', 'location', 'price', 'guestLimit', 'image', 'aminities']
 
 
 # Availability Serializer

@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from multiselectfield import MultiSelectField
+
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -17,25 +19,24 @@ class User(AbstractUser):
         return self.username
 
 # Property Listing
+CHECKLIST_CHOICES = (
+    ('wifi', 'WiFi'),
+    ('pool', 'Pool'),
+    ('parking', 'Parking'),
+    ('pet_friendly', 'Pet Friendly'),
+)
+
 class Property(models.Model):
-    PROPERTY_TYPES = (
-        ('resort', 'Resort'),
-        ('farmhouse', 'Farmhouse'),
-        ('apartment', 'Service Apartment'),
-        ('holiday_trip', 'Holiday Trip'),
-    )
-    vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    property_type = models.CharField(max_length=20, choices=PROPERTY_TYPES)
-    location = models.CharField(max_length=255)
-    price_per_night = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='property_images/', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=200)
+    category = models.CharField(max_length=100, default="General")
+    location = models.CharField(max_length=255, default="Unknown")
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    guestLimit = models.IntegerField()
+    image = models.URLField(max_length=500, blank=True, null=True)
+    aminities = MultiSelectField(choices=CHECKLIST_CHOICES, blank=True)
 
     def __str__(self):
         return self.title
-
 
 # Availability Calendar
 class Availability(models.Model):
